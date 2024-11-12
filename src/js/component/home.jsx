@@ -1,63 +1,97 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 
 
 
 //create your first component
 const Home = () => {
-	const [email, setEmail] = useState('');
-	const [emailList, setEmailList] = useState([]);
+	
+	const [userData, setUserData] = useState({});
+	const [todo, setTodo] = useState('');
 
-	//functions
-	const handleSubmit = e => {
+	
+
+	useEffect(() =>{
+
+		createUser()
+
+		getUserData()
+	},[])
+
+	const createUser = () =>{
+		fetch('https://playground.4geeks.com/todo/users/IvanTodoListYeah', {
+			method: 'POST',
+			headers: {
+				'Content-Type':'application/json'
+			}
+		})
+		.then(respuesta =>{
+			console.log('respuesta', respuesta)
+			if(!respuesta.ok) throw new Error('error pidiendo usuarios');
+			return respuesta.json()
+		})
+		.then(datos => console.log('datos',datos))
+		.catch(error => console.log('error', error))
+	}
+
+	const getUserData = () =>{
+		fetch('https://playground.4geeks.com/todo/users/IvanTodoListYeah')
+		.then(respuesta =>{
+			console.log('respuesta', respuesta)
+			if(!respuesta.ok) throw new Error('error pidiendo usuarios');
+			return respuesta.json()
+		})
+		.then(datos => {
+			console.log('datos',datos)
+			setUserData(datos)
+		})
+		.catch(error => console.log('error', error))
+	}
+
+
+
+	const crearTarea = () =>{
+		
+		fetch('https://playground.4geeks.com/todo/todos/IvanTodoListYeah', {
+			method: 'POST',
+			headers: {
+				'Content-Type':'application/json'
+			},
+			body: JSON.stringify({label:todo, done: false})
+		})
+		.then(respuesta =>{
+			console.log('respuesta', respuesta)
+			if(!respuesta.ok) throw new Error('error pidiendo usuarios');
+			return respuesta.json()
+		})
+		.then(datos => {
+			console.log('crear tarea en datos',datos)
+			getUserData(datos)
+			setTodo('')
+		})
+		.catch(error => console.log('error', error))
+
+	
+	}
+
+	//handleSubmit event
+	const handleSubmit = e =>{
 		e.preventDefault();
-		setEmailList([...emailList, email]);
+		crearTarea();
 	}
 
-	const handleChange = e => {
-		setEmail(e.target.value);
-	}
-
-	const handleDelete = (index) => {
-		setEmailList(emailList.filter((el, i) => i != index))
-	}
-
+	//crear usuario por input
 	return (
-		<div className="page">
-			<div className="text-center">
-				<form onSubmit={handleSubmit} className="form">
-					<div className="subscribe">
-						<p>SUBSCRIBE</p>
-						<input
-							placeholder="Your e-mail"
-							className="subscribe-input"
-							name="email"
-							type="email"
-							value={email}
-							onChange={handleChange}
-							required
-						/>
-						<br />
-						<input className="submit-btn d-flex" type="submit" value="Submit" />
-					</div>
-				</form>
+		<div className="text-center">
+			<form onSubmit={handleSubmit}>
+				<input type="text" value={todo} onChange={e => setTodo(e.target.value)} />
+			</form>
+			
+			<ul>
+				{userData.todos?.length > 0 ? userData.todos?.map(tarea=> <li key={tarea.id}>{tarea.label}</li>) : 'No hay tareas'}
+			</ul>
 
-				<ul className="emailList">
-					{emailList.length > 0
-						? emailList.map((email, i) => (
-							<li key={i}>
-								{email}
-								<span onClick={() => handleDelete(i)}>
-									<i className="fa-solid fa-xmark"></i>
-								</span>
-							</li>
-						))
-						: <li>Add some emails</li>
-					}
-				</ul>
-				<p className="itemCount">{emailList.length} item left</p>
-			</div>
+
 		</div>
-
 	);
 };
 
