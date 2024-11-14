@@ -91,6 +91,10 @@ const Home = () => {
 		.then(respuesta =>{
 			console.log('respuesta', respuesta)
 			if(!respuesta.ok) throw new Error('error pidiendo usuarios');
+			setUserData(prevData =>({
+				...prevData,
+				todos: prevData.todos.filter(tarea => tarea.id !== id)
+			}))
 			
 		})
 		.catch(error => console.log('error', error))
