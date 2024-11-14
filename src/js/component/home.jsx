@@ -50,7 +50,7 @@ const Home = () => {
 
 
 	const crearTarea = () =>{
-		
+		if(todo.trim().length==0) return alert('La tarea no puede estar vacia asignala')
 		fetch('https://playground.4geeks.com/todo/todos/IvanTodoListYeah', {
 			method: 'POST',
 			headers: {
@@ -79,6 +79,23 @@ const Home = () => {
 		crearTarea();
 	}
 
+	const handleDelete = (id) => {
+		const isConfirmed = confirm('¿Seguro que quieres eliminar esta tarea?');
+		if (!isConfirmed) return;
+		fetch('https://playground.4geeks.com/todo/todos/'+ id, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type':'application/json'
+			}
+		})
+		.then(respuesta =>{
+			console.log('respuesta', respuesta)
+			if(!respuesta.ok) throw new Error('error pidiendo usuarios');
+			
+		})
+		.catch(error => console.log('error', error))
+	}
+
 	//crear usuario por input
 	return (
 		<div className="text-center">
@@ -87,7 +104,7 @@ const Home = () => {
 			</form>
 			
 			<ul>
-				{userData.todos?.length > 0 ? userData.todos?.map(tarea=> <li key={tarea.id}>{tarea.label}</li>) : 'No hay tareas'}
+				{userData.todos?.length > 0 ? userData.todos?.map(tarea=> <li key={tarea.id}>{tarea.label} <span onClick={() => handleDelete(tarea.id)}><i class="fa-solid fa-recycle"></i></span></li>) : 'No hay tareas'}
 			</ul>
 
 
